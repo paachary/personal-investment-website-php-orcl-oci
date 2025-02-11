@@ -411,7 +411,7 @@ class UserController
       $subject = "Password Retrieval";
       $txt = "Hi: <br> Please find your temporary password below. <br><p>" . $newPassword . " <br> <br>. Be sure to reset the password immediately!";
 
-      $headers = "From: paachary74@gmail.com";
+      $headers = "From: <<????>>";
       mail($to, $subject, $txt, $headers);
       return redirect("/auth/login");
     } else
