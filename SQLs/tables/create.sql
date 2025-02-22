@@ -1,4 +1,4 @@
-declare begin
+begin
    begin
       --  Debug table
       execute immediate 'create table debug_tab (attr varchar2(4000), created_at date default sysdate)';
@@ -26,19 +26,24 @@ declare begin
                                       not null enable,
                                       created_at date default sysdate
                                     )
-                                    segment creation immediate;
-                                    create unique index bank_master_con on
-                                      bank_master (
-                                          bank_id
-                                      )';
+                                    segment creation immediate';
+   exception
+      when others then
+         null;
+   end;
+   begin
+      execute immediate 'create unique index bank_master_pk on
+                                                    bank_master (
+                                                        bank_id
+                                                    )';
    exception
       when others then
          null;
    end;
    begin
       execute immediate 'alter table bank_master
-                            add constraint bank_master_con primary key ( bank_id )
-                                using index bank_master_con enable';
+                            add constraint bank_master_pk primary key ( bank_id )
+                                using index bank_master_pk enable';
    exception
       when others then
          null;
@@ -126,9 +131,22 @@ declare begin
    exception
       when others then
          null;
-   end; 
-
-
+   end;
+   begin
+      execute immediate 'create unique index customer_user_id_pk on
+                                                    customer (
+                                                        user_id)';
+   exception
+      when others then
+         null;
+   end;
+   begin
+      execute immediate 'alter table customer add constraint customer_user_id_pk primary key  (user_id) using 
+                           index customer_user_id_pk';
+   exception
+      when others then
+         null;
+   end;
 -- Account Holder Table
 
    begin
@@ -137,15 +155,7 @@ declare begin
                                           preferred_name varchar2(40) not null enable,
                                           bank_id        number,
                                           user_id        number,
-                                          created_at date default sysdate,
-                                          constraint acctholder$bankid$fk foreign key ( bank_id )
-                                              references bank_master ( bank_id )
-                                                on delete cascade
-                                          enable,
-                                          constraint acctholder$userid$fk foreign key ( user_id )
-                                              references customer ( user_id )
-                                                on delete cascade
-                                          enable
+                                          created_at date default sysdate
                                         )
                                         segment creation immediate';
    exception
@@ -174,7 +184,23 @@ declare begin
    exception
       when others then
          null;
-   end; 
+   end;
+   begin
+      execute immediate 'alter table account_holder add constraint acctholder$userid$fk foreign key ( user_id )
+                                              references customer ( user_id )
+                                                on delete cascade enable';
+   exception
+      when others then
+         null;
+   end;
+   begin
+      execute immediate 'alter table account_holder add constraint acctholder$bankid$fk foreign key ( bank_id )
+                                              references bank_master ( bank_id )
+                                                on delete cascade enable';
+   exception
+      when others then
+         null;
+   end;                                                
 
    -- Instrument Details
    begin
@@ -228,3 +254,4 @@ declare begin
          null;
    end;
 end;
+/
